@@ -1,43 +1,55 @@
 const functions = require('firebase-functions')
 const { Telegraf } = require('telegraf')
-const apixu = require('apixu')
+const axios = require('axios')
 
 let config = require('./env.json');
 
 if (Object.keys(functions.config()).length) {
   config = functions.config();
 }
-const apixuClient = new apixu.Apixu({
-  apikey: config.service.apixu_key
-});
+
+// Function to build Weather API URL
+function buildWeatherApiUrl(query) {
+  return `http://api.weatherstack.com/current?access_key=${config.service.apixu_key}&query=${encodeURIComponent(query)}`;
+}
+
 
 //bot initialization
 const bot = new Telegraf(config.service.telegram_key)
 bot.start((ctx) => ctx.reply('I can tell you the weather on whatever city you want. Tell me for example, \'London\' and I will bring you the exact temperature!'));
 bot.on('text', (ctx) => {
   let query = ctx.update.message.text;
-  apixuClient.current(query).then((current) => {
-    if(current.success) {
-      return ctx.reply(
-        `The current weather in ${query} is ${current.current.temperature}C°`);
-    } else {
-        return ctx.reply(
-        `The current weather in ${query} is null\n\n${current.error.info}`);
-    }
-  }).catch((err) => {
-    return ctx.reply(`I couldn't find the city ${query}\n\nCaught Error:${err}`, err);
-  });
+  const weatherApiUrl = buildWeatherApiUrl(query);
+
+  axios.get(weatherApiUrl)
+    .then(response => {
+      const current = response.data;
+      if (current.current !== null) {
+        return ctx.reply(`The current weather in ${query} is ${current.current.temperature}C°`);
+      } else {
+        return ctx.reply(`The current weather in ${query} is null\n\n${current.error.info}`);
+      }
+    })
+    .catch(err => {
+      return ctx.reply(`I couldn't find the city ${query}\n\nCaught Error:${err}`, err);
+    });
 });
 bot.launch();
 
 // Main function
 exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send("Hi and welcome to Sky Reader: Telegram Bot!")
-  apixuClient.current('London').then((current) => {
-    return response.send(current);
-  }).catch((err) => {
-    return response.send(err);
-  });
+  response.send("Hi and welcome to Sky Reader: Telegram Bot!");
+
+  const defaultCity = 'London';
+  const weatherApiUrl = buildWeatherApiUrl(defaultCity);
+
+  axios.get(weatherApiUrl)
+    .then(response => {
+      return response.send(response.data);
+    })
+    .catch(err => {
+      return response.send(err);
+    });
 });
  // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'))

@@ -13,7 +13,7 @@
     "node": "20"
   },
   "dependencies": {
-    "apixu": "github:apixu/apixu-nodejs#master",
+    "axios": "^1.6.2",
     "firebase-admin": "~10.0.0",
     "firebase-functions": "^4.5.0",
     "telegraf": "^4.15.3",
