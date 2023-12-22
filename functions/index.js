@@ -18,20 +18,21 @@ bot.on('text', (ctx) => {
   let query = ctx.update.message.text;
   apixuClient.current(query).then((current) => {
     return ctx.reply(
-      `The current weather in ${query} is C: ${current.current.temp_c} F:${current.current.temp_f}`);
+      `The current weather in ${query} is ${current.current.temperature}C°`);
   }).catch((err) => {
-    return ctx.reply(`I Couldn\'t find the city ${query}`, err);
+    return ctx.reply(`I couldn't find the city ${query}\n\n${err}`, err);
   });
 });
 bot.launch();
 
 // Main function
 exports.helloWorld = functions.https.onRequest((request, response) => {
-  // apixuClient.current('London').then((current) => {
-  //   return response.send(current);
-  // }).catch((err) => {
-  //   return response.send(err);
-  // });
+  response.send("Hi and welcome to Sky Reader: Telegram Bot!")
+  apixuClient.current('London').then((current) => {
+    return response.send(current);
+  }).catch((err) => {
+    return response.send(err);
+  });
 });
  // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'))
