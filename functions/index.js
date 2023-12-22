@@ -17,10 +17,15 @@ bot.start((ctx) => ctx.reply('I can tell you the weather on whatever city you wa
 bot.on('text', (ctx) => {
   let query = ctx.update.message.text;
   apixuClient.current(query).then((current) => {
-    return ctx.reply(
-      `The current weather in ${query} is ${current.current.temperature}C°`);
+    if(current.success) {
+      return ctx.reply(
+        `The current weather in ${query} is ${current.current.temperature}C°`);
+    } else {
+        return ctx.reply(
+        `The current weather in ${query} is null\n\n${current.error.info}`);
+    }
   }).catch((err) => {
-    return ctx.reply(`I couldn't find the city ${query}\n\n${err}`, err);
+    return ctx.reply(`I couldn't find the city ${query}\n\nCaught Error:${err}`, err);
   });
 });
 bot.launch();
