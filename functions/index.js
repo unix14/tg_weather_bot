@@ -25,7 +25,7 @@ bot.on('text', (ctx) => {
     .then(response => {
       const current = response.data;
       if (current.current !== null) {
-        const message = `🌍 Showing Weather in 9${query}*, *${current.location.country}*\n\n🌡️ *Temperature*: ${current.current.temperature}°C\n🌤️ *Weather*: ${current.current.weather_descriptions[0]}\n💨 *Wind Speed and Direction*: ${current.current.wind_speed} km/h ${current.current.wind_dir}\n🌫️ *Humidity*: ${current.current.humidity}%`;
+        const message = `🌍 Showing Weather in **${query}**, **${current.location.country}**\n\n🌡️ **Temperature**: ${current.current.temperature}°C\n🌤️ **Weather**: ${current.current.weather_descriptions[0]}\n💨 **Wind Speed and Direction**: ${current.current.wind_speed} km/h ${current.current.wind_dir}\n🌫️ **Humidity**: ${current.current.humidity}%`;
         return ctx.reply(message);
       } else {
         return ctx.reply(`The current weather in ${query} is null\n\n${current.error.info}`);
